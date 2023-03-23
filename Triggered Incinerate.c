@@ -1,23 +1,6 @@
 //TESH.scrollpos=284
 //TESH.alwaysfold=0
 
-/////////////////////////////
-// Initialization function //
-/////////////////////////////
-function InitTrig_Triggered_Incinerate takes nothing returns nothing
-
-    local trigger t1  = CreateTrigger()
-    local trigger t2  = CreateTrigger()
-    set udg_TI_Hash   = InitHashtable()
-
-    call TriggerRegisterAnyUnitEventBJ( t1, EVENT_PLAYER_UNIT_DEATH )
-    call TriggerAddCondition( t1, Filter( function TI_Incinerate ) )
-    call TriggerRegisterVariableEvent( t2, "udg_DamageEvent", EQUAL, 1 )
-    call TriggerAddCondition( t2, Filter( function TI_MainAction ) )
-    call ExecuteFunc( "Trig_Incinerate_SpellsList_Actions" )
-
-endfunction 
-
 ////////////////////////////////////////////////////
 // This function indexes the spell's stats listed //
 // in the Incinerate spells list one by one       //
@@ -55,6 +38,16 @@ function TI_InitSpellIndex takes nothing returns nothing
     set udg_TI_SpellIndex = i
 
 endfunction
+
+
+/////////////////////////////////////////////////////
+// This function filters unwanted units from being //
+// affected by the spell                           //
+/////////////////////////////////////////////////////
+function TI_TargetFilter takes unit target, player p, integer i returns boolean
+    return ( ( not IsUnitType( target, UNIT_TYPE_STRUCTURE ) ) or udg_TI_IsUnitStructure[i] ) and ( ( not IsUnitType( target, UNIT_TYPE_MECHANICAL ) ) or udg_TI_IsUnitMechanical[i] ) and ( ( not IsUnitType( target, UNIT_TYPE_MAGIC_IMMUNE ) ) or udg_TI_IsUnitMagicImmune[i] ) and ( IsUnitEnemy( target, p ) or udg_TI_IsUnitAlly[i] ) and ( ( not IsUnitIllusion( target ) ) or udg_TI_IsUnitIllusion[i] )
+endfunction
+
 
 /////////////////////////////////////////////////////
 // This function debuffs the target unit when not  //
@@ -200,7 +193,7 @@ function TI_MainAction takes nothing returns nothing
                         call SaveUnitHandle( udg_TI_Hash, key, StringHash( "BuffPlacer" + I ), udg_DamageEventSource )
                         call SaveReal( udg_TI_Hash, key, StringHash( "Damage" + I ), LoadReal( udg_TI_Hash, key, StringHash( "Damage" + I ) ) + udg_TI_DPABase[i] + udg_TI_DPAPerLevel[i]*level )
                         call SaveReal( udg_TI_Hash, key, StringHash( "AOEDamage" + I ), udg_TI_AOEDamageBase + udg_TI_AOEDamagePerLevel*level )
-                	call SaveReal( udg_TI_Hash, key, StringHash( "AOE" + I ), udg_TI_ExplodeAOEBase[i] + udg_TI_ExplodeAOEPerLevel[i]*level )
+                call SaveReal( udg_TI_Hash, key, StringHash( "AOE" + I ), udg_TI_ExplodeAOEBase[i] + udg_TI_ExplodeAOEPerLevel[i]*level )
                         call SaveReal( udg_TI_Hash, key, StringHash( "SmallDAOE" + I ), udg_TI_ExplodeSmallDAOEBase[i] + udg_TI_ExplodeSmallDAOEPerLev[i]*level )
                         call SaveReal( udg_TI_Hash, key, StringHash( "SmallDFactor" + I  ), udg_TI_ExplodeSmallDFactorBase[i] + udg_TI_ExplodeSmallDFactorPerLev[i]*level )
                         call SaveInteger( udg_TI_Hash, timerkey, 0, i )
@@ -237,10 +230,20 @@ function TI_MainAction takes nothing returns nothing
     set I = null
 endfunction
 
-/////////////////////////////////////////////////////
-// This function filters unwanted units from being //
-// affected by the spell                           //
-/////////////////////////////////////////////////////
-function TI_TargetFilter takes unit target, player p, integer i returns boolean
-    return ( ( not IsUnitType( target, UNIT_TYPE_STRUCTURE ) ) or udg_TI_IsUnitStructure[i] ) and ( ( not IsUnitType( target, UNIT_TYPE_MECHANICAL ) ) or udg_TI_IsUnitMechanical[i] ) and ( ( not IsUnitType( target, UNIT_TYPE_MAGIC_IMMUNE ) ) or udg_TI_IsUnitMagicImmune[i] ) and ( IsUnitEnemy( target, p ) or udg_TI_IsUnitAlly[i] ) and ( ( not IsUnitIllusion( target ) ) or udg_TI_IsUnitIllusion[i] )
+
+/////////////////////////////
+// Initialization function //
+/////////////////////////////
+function InitTrig_Triggered_Incinerate takes nothing returns nothing
+
+    local trigger t1  = CreateTrigger()
+    local trigger t2  = CreateTrigger()
+    set udg_TI_Hash   = InitHashtable()
+
+    call TriggerRegisterAnyUnitEventBJ( t1, EVENT_PLAYER_UNIT_DEATH )
+    call TriggerAddCondition( t1, Filter( function TI_Incinerate ) )
+    call TriggerRegisterVariableEvent( t2, "udg_DamageEvent", EQUAL, 1 )
+    call TriggerAddCondition( t2, Filter( function TI_MainAction ) )
+    call ExecuteFunc( "Trig_Incinerate_SpellsList_Actions" )
+
 endfunction
