@@ -246,4 +246,4 @@ function InitTrig_Triggered_Incinerate takes nothing returns nothing
     call TriggerAddCondition( t2, Filter( function TI_MainAction ) )
     call ExecuteFunc( "Trig_Incinerate_SpellsList_Actions" )
 
-endfunction
+endfunction 
