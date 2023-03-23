@@ -1,6 +1,6 @@
 //TESH.scrollpos=284
 //TESH.alwaysfold=0
-
+ 
 ////////////////////////////////////////////////////
 // This function indexes the spell's stats listed //
 // in the Incinerate spells list one by one       //
